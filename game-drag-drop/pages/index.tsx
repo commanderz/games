@@ -1,11 +1,13 @@
-import type { NextPage } from 'next'
+import type { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import styled from "@emotion/styled";
 
 import styles from '../styles/Home.module.css'
-import { DropResult, DragDropContext, Droppable, Draggable, ResponderProvided } from "react-beautiful-dnd";
+import { DropResult, DragDropContext, Droppable, Draggable, ResponderProvided, resetServerContext } from "react-beautiful-dnd";
 import React, { ReactDOM, useState } from 'react';
+
+
 
 
 
@@ -221,8 +223,9 @@ const Home3: NextPage = () => {
           >
             {quote.content}
           </QuoteItem>
-        )}
-      </Draggable>
+        )
+        }
+      </Draggable >
     );
   };
 
@@ -251,10 +254,11 @@ const Home3: NextPage = () => {
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="list" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical">
+    <DragDropContext onDragEnd={onDragEnd} dragHandleUsageInstructions=" test123" >
+      <Droppable droppableId="list" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical"  >
+
         {provided => (
-          <div ref={provided.innerRef} {...provided.droppableProps}>
+          <div ref={provided.innerRef} {...provided.droppableProps} >
             <QuoteList quotes={state.quotes} />
             {provided.placeholder}
           </div>
@@ -265,3 +269,16 @@ const Home3: NextPage = () => {
 }
 
 export default Home3;
+//data-rbd-drag-handle-context-id 
+
+//export const GetServerSidePropsContext: GetServerSidePropsContext = async({query})
+
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+  console.log('reset2!!!');
+  resetServerContext()   // <-- CALL RESET SERVER CONTEXT, SERVER SIDE
+
+
+
+  return { props: { data: [] } }
+
+}
