@@ -1,16 +1,16 @@
 import type { NextPage, GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import styled from "@emotion/styled";
+import styled, { StyledComponent } from "@emotion/styled";
 
 import styles from '../styles/Home.module.css'
-import { DropResult, DragDropContext, Droppable, Draggable, ResponderProvided, resetServerContext } from "react-beautiful-dnd";
-import React, { ReactDOM, useState } from 'react';
+import { DropResult, DragDropContext, Droppable, Draggable, ResponderProvided, resetServerContext, DroppableProvided, DraggableProvided, DraggableLocation } from "react-beautiful-dnd";
+import React, { useEffect, ReactDOM, useState } from 'react';
 
 
 
 
-
+/*
 const Home: NextPage = () => {
   return (
     <div className={styles.container}>
@@ -78,9 +78,9 @@ const Home: NextPage = () => {
 };
 
 
+*/
 
-
-const Home2: NextPage = () => {
+/*const Home2: NextPage = () => {
   interface IData {
     id: string,
     content: string
@@ -170,14 +170,21 @@ const Home2: NextPage = () => {
   );
 
 }
+*/
 
 const Home3: NextPage = () => {
+  const [isBrowser, setIsBrowser] = useState<boolean>(false);
+  useEffect(() => {
+    setIsBrowser(process.browser);//заплатка для SSR+Drag-N-Drop
+    //console.log('setIsBrowser = ' + isBrowser);
+  }, []);
   interface Quote {
     id: string,
     content: string
   };
   interface Quotes {
     quotes: Quote[];
+    selected: Quote[];
   };
 
   interface QuoteIndex {
@@ -185,13 +192,35 @@ const Home3: NextPage = () => {
     index: number
   };
 
-  const initial: Quote[] = Array.from({ length: 10 }, (v, k) => k).map(k => {
-    const custom: Quote = {
-      id: `id-${k}`,
-      content: `Quote ${k}`
-    };
-    return custom;
-  });
+  const items: Quote[] = [
+
+    {
+      id: 'ta-1',
+      content: 'Get stuff',
+    },
+    {
+      id: 'ta-2',
+      content: 'Get shoes',
+    },
+    {
+      id: 'ta-3',
+      content: 'Get books',
+    },
+  ];
+
+
+  function initial(len: number, offset: number): Quote[] {
+    return (
+      Array.from({ length: len }, (v, k) => k).map(k => {
+        const custom: Quote = {
+          id: `id-${k + offset}`,
+          content: `Quote ${k + offset}`
+        };
+        return custom;
+      })
+    );
+  };
+
 
 
 
@@ -202,30 +231,35 @@ const Home3: NextPage = () => {
     return result;
   };
 
-  const grid: number = 8;
+  const grid: number = 13;
 
-  const QuoteItem = styled.div`
-  width: 200px;
+  //DraggingStyle
+  const QuoteItem: StyledComponent<any, any, any> = styled.div`width: 200px;
+  height: 50px;
   border: 1px solid grey;
   margin-bottom: ${grid}px;
-  background-color: lightblue;
   padding: ${grid}px;
+  background-color:  lightblue;
   `;
 
   function Quote({ quote, index }: QuoteIndex): JSX.Element {
     return (
-      <Draggable draggableId={quote.id} index={index}>
-        {provided => (
-          <QuoteItem
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-          >
-            {quote.content}
-          </QuoteItem>
-        )
-        }
-      </Draggable >
+      <>{isBrowser ?
+        <Draggable draggableId={quote.id
+        } index={index} >
+          {provided => (
+            <QuoteItem
+              ref={provided.innerRef}
+              {...func2(provided)}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+            >
+              {quote.content}
+            </QuoteItem>
+          )
+          }
+        </Draggable >
+        : null}</>
     );
   };
 
@@ -234,51 +268,128 @@ const Home3: NextPage = () => {
       <Quote quote={quote} index={index} key={quote.id} />
     ));
   });
+  const QuoteSelectedList = React.memo(function QuoteList({ selected }: any): JSX.Element {
+    return selected.map((quote: Quote, index: number) => (
+      <Quote quote={quote} index={index} key={quote.id} />
+    ));
+  });
 
-  const [state, setState] = useState<Quotes>({ quotes: initial });
 
-  function onDragEnd(result: DropResult, provided: ResponderProvided): void {
-    if (!result.destination) {
+  const [state, setState] = useState<Quotes>({ quotes: initial(10, 0), selected: initial(5, 10) });
+  const id2List = {
+    droppable: 'quotes',
+    droppable2: 'selected'
+  };
+  function getList(id: string): Quote[] {
+    if (id === 'droppable') { return state.quotes }
+    else
+      if (id === 'droppable2') { return state.selected }
+      else return [];
+    //return state[id2List[id]]; 
+  };
+
+  const move = (source: Quote[], destination: Quote[], droppableSource: DraggableLocation, droppableDestination: DraggableLocation) => {
+    const sourceClone = Array.from(source);
+    const destClone = Array.from(destination);
+    const [removed] = sourceClone.splice(droppableSource.index, 1);
+
+    destClone.splice(droppableDestination.index, 0, removed);
+
+    const result: Quotes = { quotes: [], selected: [] };
+    if (droppableSource.droppableId === 'droppable') {
+      result.quotes = sourceClone;
+      result.selected = destClone;
+    } else
+      if (droppableSource.droppableId === 'droppable2') {
+        result.quotes = destClone;
+        result.selected = sourceClone;
+      }
+
+
+    return result;
+  };
+
+  function onDragEnd(r: DropResult): void {
+    if (!r.destination) {
       return;
     }
-    if (result.destination.index === result.source.index) {
+    if ((r.destination.index === r.source.index) && (r.destination.droppableId === r.source.droppableId)) {
+      console.log('do nothing');
       return;
     }
-    //provided.announce('test');
-    const quotes = reorder(
-      state.quotes,
-      result.source.index,
-      result.destination.index
-    );
-    setState({ quotes });
+    if (r.destination.droppableId === r.source.droppableId) {
+      console.log('move src = ' + r.source.droppableId + ', idx=' + r.source.index);
+      console.log('move dest = ' + r.destination.droppableId + ', idx=' + r.destination.index);
+      const quote = reorder(
+        //state.quotes,
+        getList(r.source.droppableId),
+        r.source.index,
+        r.destination.index
+      );
+      console.log(quote);
+      if (r.source.droppableId === 'droppable') {
+        setState({ quotes: quote, selected: state.selected });
+      } else
+        if (r.source.droppableId === 'droppable2') {
+          setState({ quotes: state.quotes, selected: quote });
+        }
+    } else {
+      const result = move(
+        getList(r.source.droppableId),
+        getList(r.destination.droppableId),
+        r.source,
+        r.destination
+      );
+      setState(result);
+    }
+
   }
 
-  return (
-    <DragDropContext onDragEnd={onDragEnd} dragHandleUsageInstructions=" test123" >
-      <Droppable droppableId="list" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical"  >
+  function func1(provided: DroppableProvided) { //console.log('drop contex=' + provided.droppableProps['data-rbd-droppable-context-id'] + ", id=" + provided.droppableProps['data-rbd-droppable-id']); return null; 
+  };
+  function func2(provided: DraggableProvided) { //console.log('drag contex=' + provided.draggableProps['data-rbd-draggable-context-id'] + ', id=' + provided.draggableProps['data-rbd-draggable-id']); return null; 
+  };
 
-        {provided => (
-          <div ref={provided.innerRef} {...provided.droppableProps} >
-            <QuoteList quotes={state.quotes} />
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext >
+  return (
+    <>{isBrowser ?
+      <DragDropContext onDragEnd={onDragEnd} dragHandleUsageInstructions=" test123"  >
+        <Droppable droppableId="droppable" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical"  >
+          {provided => (
+            <div {...func1(provided)} ref={provided.innerRef} {...provided.droppableProps} >
+              <QuoteList quotes={state.quotes} />
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+        <div>==========================</div>
+        <Droppable droppableId="droppable2" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical"  >
+          {provided => (
+            <div {...func1(provided)} ref={provided.innerRef} {...provided.droppableProps} >
+              <QuoteList quotes={state.selected} />
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext >
+      : null}</>
   );
 }
 
 export default Home3;
-//data-rbd-drag-handle-context-id 
-
-//export const GetServerSidePropsContext: GetServerSidePropsContext = async({query})
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  console.log('reset2!!!');
-  resetServerContext()   // <-- CALL RESET SERVER CONTEXT, SERVER SIDE
-
-
-
+  //console.log('reset on server side!');
+  //resetServerContext()   // <-- CALL RESET SERVER CONTEXT, SERVER SIDE
   return { props: { data: [] } }
-
 }
+
+/*
+export async function getStaticProps() {
+  console.log('reset on server side!');
+  resetServerContext();   // <-- CALL RESET SERVER CONTEXT, SERVER SIDE
+  return {
+    props: {
+      data: [],
+    },
+  };
+}*/
