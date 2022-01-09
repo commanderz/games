@@ -10,8 +10,7 @@ import React, { useEffect, ReactDOM, useState } from 'react';
 
 
 
-/*
-const Home: NextPage = () => {
+/*const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
@@ -233,14 +232,24 @@ const Home3: NextPage = () => {
 
   const grid: number = 13;
 
-  //DraggingStyle
-  const QuoteItem: StyledComponent<any, any, any> = styled.div`width: 200px;
+  //div Образующий flex колонки
+  const QuoteItemDev: StyledComponent<any, any, any> = styled.div`
+  display: flex;
+  user - select: none;
+  flex - direction: row;
+  align - content: stretch;
+  justify - content: center;
+  align - items: stretch;
+  flex - wrap: wrap;
+`;
+  const QuoteItem: StyledComponent<any, any, any> = styled.div``/*`
+  width: 200px;
   height: 50px;
   border: 1px solid grey;
   margin-bottom: ${grid}px;
   padding: ${grid}px;
   background-color:  lightblue;
-  `;
+  `*/;
 
   function Quote({ quote, index }: QuoteIndex): JSX.Element {
     return (
@@ -248,7 +257,7 @@ const Home3: NextPage = () => {
         <Draggable draggableId={quote.id
         } index={index} >
           {provided => (
-            <QuoteItem
+            <QuoteItem className="card"
               ref={provided.innerRef}
               {...func2(provided)}
               {...provided.draggableProps}
@@ -353,23 +362,25 @@ const Home3: NextPage = () => {
   return (
     <>{isBrowser ?
       <DragDropContext onDragEnd={onDragEnd} dragHandleUsageInstructions=" test123"  >
-        <Droppable droppableId="droppable" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical"  >
-          {provided => (
-            <div {...func1(provided)} ref={provided.innerRef} {...provided.droppableProps} >
-              <QuoteList quotes={state.quotes} />
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-        <div>==========================</div>
-        <Droppable droppableId="droppable2" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical"  >
-          {provided => (
-            <div {...func1(provided)} ref={provided.innerRef} {...provided.droppableProps} >
-              <QuoteList quotes={state.selected} />
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+        <QuoteItemDev>
+          <Droppable droppableId="droppable" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical"  >
+            {provided => (
+              <div {...func1(provided)} ref={provided.innerRef} {...provided.droppableProps} >
+                <QuoteList quotes={state.quotes} />
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+
+          <Droppable droppableId="droppable2" mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical"  >
+            {provided => (
+              <div {...func1(provided)} ref={provided.innerRef} {...provided.droppableProps} >
+                <QuoteList quotes={state.selected} />
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </QuoteItemDev>
       </DragDropContext >
       : null}</>
   );
