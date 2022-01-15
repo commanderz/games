@@ -445,33 +445,64 @@ function MyApp({ Component, pageProps }: AppProps) {
     console.log('arr[' + i + ']=' + arr[i].name + ', ' + arr[i].serialNumber);
   }
 */
+  /*
+    return (
+  
+      <div>
+        <Accordion>
+          <Card>
+            <Accordion.Header as={Card.Header} eventKey="0">
+              TAB 1
+            </Accordion.Header>
+  
+            <Accordion.Collapse eventKey="0">
+              <Card.Body>This is first tab body</Card.Body>
+            </Accordion.Collapse>
+          </Card>
+  
+          <Card>
+            <Accordion.Header as={Card.Header} eventKey="1">
+              TAB 2
+            </Accordion.Header>
+  
+            <Accordion.Collapse eventKey="1">
+              <Card.Body>This is second tab body</Card.Body>
+            </Accordion.Collapse>
+          </Card>
+        </Accordion>
+      </div>
+  
+    );
+    */
+
+
+  interface iData {
+    name: string;
+    serialNumber: number;
+  }
+
+  const data = [
+    "Oles",
+    "Denys",
+    'Kolya',
+    "Max"
+  ];
+
+
+  //data.forEach(x => { if (x != 'Oles') { arr.push({ name: x, serialNumber: Math.round(Math.random() * 1000) }) } });
+
+  const arr: iData[] = data.reduce((accumulator: iData[], name: string): iData[] => {
+    //console.log('pv=' + pv.length + ', name=' + name + ', ci=' + ci);
+    if (name != 'Oles') { accumulator.push({ name, serialNumber: Math.round(Math.random() * 1000) }); }
+    return accumulator;
+  }, []);
+
+  for (let i = 0; i < arr.length; i++) {
+    console.log('arr[' + i + ']=' + arr[i].name + ', ' + arr[i].serialNumber);
+  };
 
   return (
-
-    <div>
-      <Accordion>
-        <Card>
-          <Accordion.Header as={Card.Header} eventKey="0">
-            TAB 1
-          </Accordion.Header>
-
-          <Accordion.Collapse eventKey="0">
-            <Card.Body>This is first tab body</Card.Body>
-          </Accordion.Collapse>
-        </Card>
-
-        <Card>
-          <Accordion.Header as={Card.Header} eventKey="1">
-            TAB 2
-          </Accordion.Header>
-
-          <Accordion.Collapse eventKey="1">
-            <Card.Body>This is second tab body</Card.Body>
-          </Accordion.Collapse>
-        </Card>
-      </Accordion>
-    </div>
-
+    <div><h1>test1</h1></div>
   );
 };
 

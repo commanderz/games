@@ -241,9 +241,13 @@ const Home3: NextPage = () => {
   justify - content: center;
   align - items: stretch;
   flex - wrap: wrap;
+  
 `;
-  const QuoteItem: StyledComponent<any, any, any> = styled.div``/*`
-  width: 200px;
+
+  const QuoteItem: StyledComponent<any, any, any> = styled.div`
+  `;
+
+  /*width: 200px;
   height: 50px;
   border: 1px solid grey;
   margin-bottom: ${grid}px;
