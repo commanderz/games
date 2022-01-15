@@ -1,5 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+//import { Router, browserHistory, Route, Link } from 'react-router';
+//import { Router } from 'next/router';
+//import { Route } from 'react-router';
+
 import './index.css';
 //import App from './App';
 import List from './List';
