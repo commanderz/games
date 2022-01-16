@@ -39,7 +39,7 @@ const grid: number = 8;
 const QuoteItem: StyledComponent<any, any, any> = styled.div`
   width: auto;
   height: auto;
-  border: 1px solid grey;
+  border: 0px solid grey;
   margin-bottom: ${grid}px;
   padding: ${grid}px;
   background-color: lightblue;
@@ -126,17 +126,19 @@ function List() {
         userSelect: "none",
         padding: grid * 2,
         margin: `0 0 ${grid}px 0`,
-
         // change background colour if dragging
         background: isDragging ? "lightgreen" : null,
-
+        boxShadow: isDragging ? "0 4px 8px 0 #444, 0 6px 20px 0 #444" : null,
         // styles we need to apply on draggables
         ...draggableStyle
     });
 
     const getListStyle = (isDraggingOver: boolean) => ({
-        background: isDraggingOver ? "lightblue" : "lightgrey",
+        background: isDraggingOver ? '#10AA02' : "#603E77",
         padding: grid,
+        borderRadius: 8,
+        transition: "background-color 1.0s ease 0s"
+
         //width: 300
     });
 
@@ -267,43 +269,41 @@ function List() {
 
         return (
             <div className={p.classNamez}>
-                <h4 className="styleh3" > {tableStage?.toString()}</h4>
-                <div className="div0">
-                    {
-                        <Droppable droppableId={"droppable" + p.numStage} mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical" >
-                            {(provided, snapshot) => (
-                                <div ref={provided.innerRef}{...provided.droppableProps}
-                                    style={getListStyle(snapshot.isDraggingOver)}
+                <h4 className="styleh4" > {tableStage?.toString()}</h4>
+                {
+                    <Droppable droppableId={"droppable" + p.numStage} mode="standard" isDropDisabled={false} isCombineEnabled={false} direction="vertical" >
+                        {(provided, snapshot) => (
+                            <div ref={provided.innerRef}{...provided.droppableProps}
+                                style={getListStyle(snapshot.isDraggingOver)}
+                            >
+                                {newlist?.length > 0 ?
+                                    newlist.map((item: iTaskType, index: number) => (
+                                        <Draggable draggableId={item.id} index={index} key={item.id} disableInteractiveElementBlocking={true} >
+                                            {(provided, snapshot) => (
+                                                <QuoteItem className="divitem tl"
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
 
-                                >
-                                    {newlist?.length > 0 ?
-                                        newlist.map((item: iTaskType, index: number) => (
-                                            <Draggable draggableId={item.id} index={index} key={item.id} disableInteractiveElementBlocking={true} >
-                                                {(provided, snapshot) => (
-                                                    <QuoteItem className="divitem"
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
+                                                    style={getItemStyle(
+                                                        snapshot.isDragging,
+                                                        provided.draggableProps.style
+                                                    )}
+                                                >
+                                                    {item.taskName}
+                                                </QuoteItem>
+                                            )}
+                                        </Draggable>
+                                    ))
+                                    : <div className="divitem grayed tc">{'<Порожньо>'}</div>
+                                }
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
 
-                                                        style={getItemStyle(
-                                                            snapshot.isDragging,
-                                                            provided.draggableProps.style
-                                                        )}
-                                                    >
-                                                        {item.taskName}
-                                                    </QuoteItem>
-                                                )}
-                                            </Draggable>
-                                        ))
-                                        : <div className="divitem grayed">{'<Порожньо>'}</div>
-                                    }
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
+                }
 
-                    }
-                </div>
             </div >
         );
     };
@@ -313,8 +313,8 @@ function List() {
         <div className="wrapper" >
 
             <div className="header">
-                <div > <h3 className="styleh3">{"Нова задача"}</h3>
-                    <QuoteItem className="divitem">
+                <div > <h4 className="styleh4">{"Нова задача"}</h4>
+                    <QuoteItem className="divitem tc">
                         <input className={"styleinput"} value={formValues.taskName} onChange={e => handleFormChange('taskName', e.target.value)} ></input>
                         <button className={"btn"} disabled={!formValues.taskName} onClick={handleAddTodo}>{"Створити задачу"}</button>
                     </QuoteItem>

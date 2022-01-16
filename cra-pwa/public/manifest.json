@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Список справ",
+  "name": "Список справ та розпорядок дня",
   "icons": [
     {
       "src": "favicon.ico",
